@@ -1,647 +1,384 @@
-# 🚁 J2-Drone — Autonomous Disaster Response System
+<div align="center">
 
-> An intelligent autonomous drone platform for disaster-affected areas with on-device AI for survivor detection and hazard identification. Built for the **Smart India Hackathon (SIH)** with multi-sensor capabilities (RGB + thermal imaging) and real-time command center control.
+# AkashX
 
-![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
-![Status](https://img.shields.io/badge/status-active-green.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+### AI-powered autonomous drone platform for search and rescue
 
----
+Detects survivors, fire, smoke and hazards from the air, streams everything to a ground station and a mobile app, and lets people in danger raise an SOS with one tap.
 
-## 📋 Table of Contents
+<br>
 
-- [Project Overview](#project-overview)
-- [Key Features](#key-features)
-- [System Architecture](#system-architecture)
-- [Installation & Setup](#installation--setup)
-- [Project Structure](#project-structure)
-- [Module Documentation](#module-documentation)
-- [Development Conventions](#development-conventions)
-- [Testing](#testing)
-- [Contributing Guidelines](#contributing-guidelines)
-- [Troubleshooting](#troubleshooting)
+![Smart India Hackathon 2026](https://img.shields.io/badge/Smart%20India%20Hackathon-2026-FF9933?style=for-the-badge)
+![Problem Statement](https://img.shields.io/badge/Problem%20Statement-SIH26177-138808?style=for-the-badge)
+![Theme](https://img.shields.io/badge/Theme-Robotics%20%26%20Drones-000080?style=for-the-badge)
 
----
+![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-Android%20%7C%20iOS-02569B?logo=flutter&logoColor=white)
+![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-111F68)
+![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-5C3EE8?logo=opencv&logoColor=white)
+![Raspberry Pi](https://img.shields.io/badge/Raspberry%20Pi%205-Edge%20AI-A22846?logo=raspberrypi&logoColor=white)
+![Cloud](https://img.shields.io/badge/Cloud%20Relay-Enabled-4285F4)
+![Status](https://img.shields.io/badge/Status-Active%20Development-success)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
-## 📖 Project Overview
+[Overview](#overview) | [What We Have Built](#what-we-have-built) | [Screenshots](#screenshots) | [Architecture](#architecture) | [Getting Started](#getting-started) | [Roadmap](#roadmap) | [Team](#team)
 
-**J2-Drone** is an autonomous drone system designed to assist in disaster management and relief operations. The system combines:
-
-- **On-Device AI**: Real-time survivor and hazard detection using computer vision
-- **Multi-Sensor Fusion**: RGB camera + thermal imaging for comprehensive environmental awareness
-- **Remote Command Center**: Web-based dashboard for real-time drone control and monitoring
-- **Live Streaming**: Low-latency video streaming from drone to ground station
-- **Autonomous Navigation**: INS (Inertial Navigation System) for precise positioning
-
-The platform prioritizes **fast deployment**, **local processing** (no cloud dependency), and **reliability in emergency scenarios**.
+</div>
 
 ---
 
-## ✨ Key Features
+## Overview
 
-### 🎯 Core Capabilities
-- **Autonomous Flight Control** — Automatic takeoff, landing, and waypoint navigation
-- **Real-Time Detection** — Survivor identification and hazard detection on edge device
-- **Dual Imaging** — RGB + thermal sensor fusion for day/night operation
-- **Live Command Center** — Web dashboard for remote operator control
-- **Streaming Protocol** — Efficient video/telemetry streaming over various network conditions
-- **INS Navigation** — Precise drone positioning and altitude hold
+After a flood, landslide or earthquake, the first hours decide who is found alive. Rescue teams often enter disaster zones with little information, and aerial search that relies only on cameras misses people who can call for help but cannot be seen.
 
-### 🔧 System Integration
-- **Modular Architecture** — Independent centers for commands, communication, display, etc.
-- **Extensible Design** — Easy to add new sensors or detection algorithms
-- **Configuration Management** — Centralized constants for quick tuning
-- **Error Handling** — Robust communication and failsafe mechanisms
+AkashX addresses this with three connected parts:
+
+1. **An AI drone** that finds people, fire, smoke and hazards using RGB and thermal imaging, with detection running on the drone itself so it keeps working when connectivity is poor.
+2. **A command layer** made up of a desktop ground control station and a cross-platform mobile app that show live video, telemetry, maps and detections.
+3. **An SOS pipeline** that lets survivors share their exact location in one tap, so the drone and responders know where to go.
+
+The long-term goal is a mother drone that carries and releases small disposable child drones into gaps and rubble it cannot reach itself. This is described in the [Roadmap](#roadmap).
+
+| | |
+|---|---|
+| **Event** | Smart India Hackathon 2026 |
+| **Problem Statement** | SIH26177: a deployable AI-powered autonomous drone that aids search-and-rescue by detecting people and hazards, improving responder safety and reducing victim discovery time |
+| **Category** | Hardware |
+| **Theme** | Robotics and Drones |
+| **Team** | AKASHX (Team ID 130495) |
 
 ---
 
-## 🏗️ System Architecture
+## What We Have Built
+
+This section lists what exists and works today. Planned work is kept separate under the [Roadmap](#roadmap).
+
+### Detection and perception
+
+- Multi-class detection of humans, fire, smoke and hazards using YOLOv8, with custom-trained weights (`software/best.pt`) alongside the YOLOv8 nano baseline (`software/yolov8n.pt`).
+- A custom training dataset of roughly 25,000 images, prepared and trained by the team.
+- OpenCV-based image processing for autonomous image sensing.
+- A working beta that demonstrates AI-based detection on a prebuilt drone, validating the core perception pipeline.
+
+### Ground Control Software (desktop)
+
+- Live video feed with a dedicated panel for victim captures and another for fire and smoke captures.
+- Live map view with markers for detections and the drone position.
+- Keyboard flight controls and a safety panel with arm, disarm and emergency actions.
+- Telemetry and system status readouts, with command and event logs.
+
+### Mobile application (Flutter)
+
+- Cross-platform app built in Flutter for Android and iOS from a single codebase.
+- Live video, detection status and telemetry (altitude, battery, speed, signal, latitude and longitude).
+- SOS button with the user's current location.
+
+### Cloud and communication
+
+- Cloud relay for control and streaming beyond physical radio range (`CloudCenter`).
+- SOS listener service and local SOS record storage (`sosListener.py`, `sos_store.py`).
+- Geo-coordinate conversion and altitude synchronisation between components.
+- Video streaming server for live feed delivery (`videoServer.py`).
+
+### Navigation and autonomy
+
+- Dead reckoning and inertial navigation modules for positioning when GPS is unavailable (`INSCenter`).
+- Autonomous flight logic and autonomous command handling (`AutonomusCenter`).
+- Semi-autonomous flight features, with simulation-based testing of autonomous behaviour.
+
+### Engineering practices
+
+- Modular codebase: flight, AI processing, sensing, communication, UI and cloud are separate packages that can be developed and tested independently.
+- A single source of truth for configuration in `ConstantsCenter`.
+
+---
+
+## Screenshots
+
+> Add your screenshots to `docs/images/` using the file names below and they will render here.
+
+<table>
+  <tr>
+    <td align="center" width="62%">
+      <img src="docs/images/ground-control.png" alt="Ground Control Software" width="100%">
+      <br><b>Ground Control Software</b>
+      <br>Live video, victim and fire captures, map, controls and safety panel
+    </td>
+    <td align="center" width="38%">
+      <img src="docs/images/mobile-app.png" alt="Mobile app" width="60%">
+      <br><b>Mobile App</b>
+      <br>Detection status, telemetry and SOS
+    </td>
+  </tr>
+</table>
+
+---
+
+## Architecture
+
+The system is built around a mother drone that handles flight, perception and mission planning, with a communication layer that connects it to the ground station, the mobile app and the cloud relay. The child drone link is part of the planned extension.
+
+```mermaid
+flowchart TD
+    subgraph SENSE[Sensing]
+        RGB[RGB Camera]
+        THERM[Thermal Camera]
+        NAV[GPS and IMU]
+    end
+
+    SENSE --> SL[Sensing Layer]
+    SL --> FC[Flight Controller]
+    SL --> PI[Raspberry Pi 5]
+
+    PI -->|AI inference, SLAM, sensor fusion| MM[Mission Manager]
+    FC <-->|Movement commands| MM
+
+    MM --> COMM[Communication Layer]
+
+    COMM --> WIFI[Wi-Fi, short range]
+    COMM --> TELE[Telemetry radio]
+    COMM --> CLOUD[Cloud Relay]
+
+    WIFI --> GCS[Ground Control Software]
+    TELE --> GCS
+    TELE --> APP[Mobile App]
+    CLOUD --> APP
+    GCS --- APP
+
+    MM -.->|Planned| CHILD[Child Drones]
+```
+
+### Subsystem summary
+
+| Subsystem | Responsibility |
+|---|---|
+| Sensing layer | Collects RGB, thermal and GPS/IMU data |
+| Flight controller | Stabilisation, motor control and failsafes |
+| Raspberry Pi 5 | On-device AI inference, SLAM and sensor fusion |
+| Mission manager | Priority scoring, geotagging and route planning |
+| Communication layer | Wi-Fi, telemetry radio and cloud relay fallback |
+| Ground Control Software | Live video, telemetry, altitude and mission data |
+| Mobile app | SOS trigger, live map, push alerts and navigation |
+
+Failsafes are part of the design: low-voltage return-to-home from the power system, and automatic return-to-home if the Raspberry Pi fails.
+
+---
+
+## Technology Stack
+
+| Area | Technologies |
+|---|---|
+| Drone and ground software | Python, Tkinter |
+| Computer vision and AI | YOLOv8 (Ultralytics), OpenCV |
+| Mobile application | Flutter, Dart (Android and iOS) |
+| Web dashboard | HTML, CSS, JavaScript |
+| Cloud | Cloud relay, SOS listener and sync services |
+| Navigation | Dead reckoning, inertial navigation, SLAM (planned) |
+| Edge compute | Raspberry Pi 5 |
+| Platforms | Windows, Linux |
+
+---
+
+## Repository Structure
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    COMMAND CENTER (GUI)                      │
-│            ↓                                    ↓             │
-├─────────────────────────────────────────────────────────────┤
-│  DisplayCenter  │  FrontEndCenter  │  CommandsCenter         │
-│  (Tkinter UI)   │  (Web Dashboard) │  (Drone Commands)       │
-└────────┬─────────────────┬────────────────────┬──────────────┘
-         │                 │                    │
-         └─────────────────┴────────────────────┘
-                    │
-         ┌──────────┴──────────┐
-         │                     │
-    ┌────▼──────────────┐   ┌─▼──────────────┐
-    │ CommunicationCtr  │   │ ConstantsCenter│
-    │ (Protocols/Data)  │   │ (Config Values)│
-    └────┬──────────────┘   └────────────────┘
-         │
-    ┌────▼─────────────────────────┐
-    │   DRONE HARDWARE              │
-    │ ├─ Flight Controller          │
-    │ ├─ RGB Camera                 │
-    │ ├─ Thermal Camera             │
-    │ ├─ IMU/Barometer (INS)        │
-    │ └─ Communication Module       │
-    └──────────────────────────────┘
+.
+├── main.py                           Application entry point
+├── requirements.txt                  Python dependencies
+│
+├── AutonomusCenter/                  Autonomous flight logic
+│   ├── AutonomusCommandsCenter/
+│   └── autonomusFlight.py
+│
+├── CloudCenter/                      Cloud relay and SOS pipeline
+│   ├── altitudeSync.py
+│   ├── cloudTesting.py
+│   ├── geoConvert.py
+│   └── sosListener.py
+│
+├── CommandsCenter/                   Drone command generation
+│   └── Commands.py
+│
+├── CommunicationCenter/              Drone-to-ground communication
+│   ├── Streaming.py
+│   ├── communication.py
+│   └── sos_store.py
+│
+├── ConstantsCenter/                  Central configuration
+│   └── constants.py
+│
+├── DisplayCenter/                    Ground control UI
+│   └── Display.py
+│
+├── FrontEndCenter/                   Web dashboard
+│   ├── website.css
+│   ├── website.html
+│   └── wensite.js
+│
+├── GlobalVideoStreamingCenter/       Video streaming
+│   ├── software/
+│   └── videoServer.py
+│
+├── INSCenter/                        Navigation
+│   ├── DeadReckoningSystem.py
+│   └── IntertialNavigationSystem.py
+│
+├── software/                         Detection model weights
+│   ├── best.pt
+│   └── yolov8n.pt
+│
+└── oldFiles/                         Deprecated, reference only
 ```
 
 ---
 
-## 🚀 Installation & Setup
+## Getting Started
 
 ### Prerequisites
-- **Python 3.8** or higher
-- **pip** (Python package manager)
-- Virtual environment (recommended)
-- Operating System: Windows, macOS, or Linux
 
-### Step 1: Clone the Repository
+- Python 3.8 or higher
+- pip and a virtual environment tool
+- Windows, Linux or macOS
+
+### Installation
 
 ```bash
-git clone https://github.com/DarshiL-Sharma/J2-Drone.git
-cd J2-Drone
-```
+git clone https://github.com/DarshiL-Sharma/AkashX.git
+cd AkashX
 
-### Step 2: Create Virtual Environment
-
-**Windows:**
-```bash
 python -m venv .venv
+# Windows
 .venv\Scripts\activate
-```
-
-**macOS/Linux:**
-```bash
-python3 -m venv .venv
+# Linux / macOS
 source .venv/bin/activate
-```
 
-### Step 3: Install Dependencies
-
-```bash
 pip install -r requirements.txt
 ```
 
-### Step 4: Run the Application
+### Run
 
 ```bash
 python main.py
 ```
 
-The system will launch the main Tkinter interface. Verify all systems are operational before flight.
+This launches the ground control interface. Make sure the model weights in `software/` are present before starting detection.
 
 ---
 
-## 📁 Project Structure
+## Development Conventions
 
-```
-J2-Drone/
-│
-├── 📄 main.py                          ← Entry point (starts DisplayCenter)
-├── 📄 requirements.txt                 ← Python dependencies
-├── 📄 README.md                        ← This file
-├── 📄 .gitignore                       ← Git ignore rules
-│
-├── 📦 AutonomusCenter/                 ← Autonomous flight logic
-│   └── autonomy.py                     ← Waypoint navigation, flight modes
-│
-├── 📦 CloudCenter/                     ← Cloud integration (future)
-│   └── cloud_sync.py
-│
-├── 📦 CommandsCenter/                  ← Drone command generation
-│   ├── Commands.py                     ← Command building & execution
-│   └── command_queue.py
-│
-├── 📦 CommunicationCenter/             ← Protocol & streaming
-│   ├── communication.py                ← MAVLink/Protocol handler
-│   ├── Streaming.py                    ← Video/telemetry streaming
-│   └── serial_handler.py
-│
-├── 📦 ConstantsCenter/                 ← Configuration (SINGLE SOURCE OF TRUTH)
-│   ├── constants.py                    ← All tunable parameters
-│   └── hw_config.py                    ← Hardware-specific settings
-│
-├── 📦 DisplayCenter/                   ← UI Layer (Tkinter)
-│   ├── Display.py                      ← Main Tkinter window
-│   ├── widgets.py                      ← Custom UI components
-│   └── telemetry_display.py            ← Telemetry visualization
-│
-├── 📦 FrontEndCenter/                  ← Web Command Dashboard
-│   ├── website.html                    ← Dashboard markup
-│   ├── website.css                     ← Dashboard styling
-│   ├── website.js                      ← Dashboard interactivity
-│   └── server.py                       ← Flask/FastAPI backend
-│
-├── 📦 GlobalVideoStreamingCenter/      ← Video streaming pipeline
-│   ├── frame_processor.py              ← Frame capture & encoding
-│   ├── stream_server.py                ← Streaming protocol
-│   └── compression.py
-│
-├── 📦 INSCenter/                       ← Inertial Navigation System
-│   ├── ins_filter.py                   ← IMU fusion algorithm
-│   ├── altitude_estimator.py           ← Barometric altitude calc
-│   └── position_tracking.py            ← XYZ position estimate
-│
-├── 📦 software/                        ← Core packages (reusable modules)
-│   ├── detection/                      ← AI detection models
-│   │   ├── survivor_detector.py        ← Human detection model
-│   │   ├── hazard_detector.py          ← Fire/debris detection
-│   │   └── thermal_processor.py        ← Thermal image processing
-│   ├── utils/                          ← Utility functions
-│   │   ├── logger.py                   ← Logging setup
-│   │   ├── error_handler.py            ← Exception handling
-│   │   └── validators.py               ← Input validation
-│   └── drivers/                        ← Hardware drivers
-│       ├── camera_driver.py            ← Camera interface
-│       └── imu_driver.py               ← IMU/sensor interface
-│
-├── 📦 TestCenter/                      ← Unit & integration tests
-│   ├── test_commands.py                ← CommandsCenter tests
-│   ├── test_communication.py           ← CommunicationCenter tests
-│   ├── test_streaming.py               ← Streaming tests
-│   ├── test_display.py                 ← UI tests
-│   ├── test_detection.py               ← AI detection tests
-│   └── conftest.py                     ← Pytest configuration
-│
-├── 📦 oldFiles/                        ← DEPRECATED (reference only)
-│   ├── cv.py
-│   ├── old.py
-│   └── old1.py
-│
-└── 📦 __pycache__/                     ← Python bytecode (ignored)
-```
+- **Constants:** all tunable values live in `ConstantsCenter/constants.py`, in `ALL_CAPS_WITH_UNDERSCORES`. No hardcoded values in other modules.
+- **Module independence:** each `*Center` package is self-contained. Avoid circular imports.
+- **Import paths:** do not rename or move modules without team agreement.
+- **Safety-critical changes:** changes to flight limits or failsafe behaviour need a pull request with a clear reason and test notes.
+- **Deprecated code:** files in `oldFiles/` are never imported.
+
+Workflow: branch from `main` as `feature/short-description`, keep changes focused, test locally, and open a pull request that explains what changed and why.
 
 ---
 
-## 📚 Module Documentation
+## Roadmap
 
-### **CommandsCenter** — Drone Command Interface
-Generates and sends commands to the drone's flight controller.
+### Next up: multi-drone system
 
-**Key Classes:**
-- `CommandBuilder` — Constructs MAVLink/custom protocol commands
-- `CommandQueue` — Manages command execution queue
-- `CommandValidator` — Validates commands before sending
+- [ ] Mother drone that carries and releases disposable child drones into gaps and rubble
+- [ ] Child drone link over Wi-Fi or telemetry, with onboard stabilisation, SLAM and sensing
+- [ ] Mission manager that assigns areas to child drones and merges their detections
 
-**Example:**
-```python
-from CommandsCenter.Commands import CommandBuilder
+### SOS and emergency response
 
-builder = CommandBuilder()
-cmd = builder.create_takeoff(altitude=10)  # 10m takeoff
-send_to_drone(cmd)
-```
+- [x] One-tap SOS in the mobile app with location sharing
+- [ ] Automatic drone dispatch to the SOS location
+- [ ] Integrated 112 emergency call from the app
+- [ ] Android smartwatch app for SOS from the wrist
+- [ ] iOS smartwatch app for SOS from the wrist
+- [ ] Push alerts to responders
 
----
+### Autonomy and navigation
 
-### **CommunicationCenter** — Protocol & Streaming
-Handles all drone-to-ground communication and live video/telemetry streaming.
+- [x] Dead reckoning and inertial navigation modules
+- [ ] SLAM-based obstacle avoidance and visual localisation in GPS-denied areas
+- [ ] Fully autonomous search patterns with priority scoring of detections
+- [ ] Fastest-path routing for rescue teams using live cloud data
 
-**Key Modules:**
-- `communication.py` — Protocol implementation (MAVLink, custom serial)
-- `Streaming.py` — Video/data streaming over TCP/UDP
-- `serial_handler.py` — Serial port communication
+### AI and perception
 
-**Example:**
-```python
-from CommunicationCenter.communication import DroneLink
-from CommunicationCenter.Streaming import VideoStreamer
+- [x] Multi-class detection of humans, fire, smoke and hazards
+- [ ] Improved detection of partially buried and covered victims
+- [ ] Hardware AI acceleration on the Raspberry Pi 5 (Hailo-8 under evaluation)
+- [ ] Larger, more diverse training dataset
 
-link = DroneLink(port="/dev/ttyUSB0", baudrate=115200)
-streamer = VideoStreamer(target="192.168.1.100", port=5000)
-streamer.start()
-```
+### Hardware
 
----
+- [ ] Full airframe build: 450 mm frame, BLDC motors, 10 to 12 inch propellers, Pixhawk flight controller
+- [ ] RGB plus FLIR thermal payload
+- [ ] 915 MHz telemetry link
+- [ ] Child drone: roughly 65 mm micro-frame with ESP32 flight controller and spring-release bay
+- [ ] Field testing, then DGCA and DigitalSky compliance
 
-### **ConstantsCenter** — Configuration (SINGLE SOURCE OF TRUTH)
-**All constants must be defined here.** No magic numbers in code!
+### Platform
 
-**Convention:** All constants use `ALL_CAPS_WITH_UNDERSCORES`
-
-**Example structure:**
-```python
-# ConstantsCenter/constants.py
-
-# Flight Limits
-MAX_ALTITUDE_M = 120
-MIN_SAFE_ALTITUDE_M = 5
-MAX_SPEED_MS = 20
-MAX_TILT_DEG = 45
-
-# Detection Thresholds
-SURVIVOR_CONFIDENCE_MIN = 0.75
-THERMAL_ANOMALY_THRESHOLD_C = 45.0
-
-# Communication
-SERIAL_BAUDRATE = 115200
-STREAMING_BITRATE_KBPS = 2500
-```
-
----
-
-### **DisplayCenter** — Tkinter User Interface
-The ground control station UI for operators.
-
-**Features:**
-- Real-time telemetry display (altitude, speed, position)
-- Live video feed with overlays (detections, grid)
-- Command buttons (takeoff, land, emergency stop)
-- Sensor health indicators
-- Flight log viewer
-
-**Example:**
-```python
-from DisplayCenter.Display import DroneApp
-
-app = DroneApp()
-app.mainloop()  # Runs Tkinter event loop
-```
-
----
-
-### **FrontEndCenter** — Web Dashboard
-Browser-based command center for remote operations.
-
-**Files:**
-- `website.html` — Dashboard structure
-- `website.css` — Responsive styling
-- `website.js` — Real-time updates & control
-- `server.py` — WebSocket/REST API backend
-
-**Features:**
-- 3D map view of drone position
-- Live video stream
-- Command palette
-- Telemetry graphs
-- Detection log
-
----
-
-### **GlobalVideoStreamingCenter** — Video Streaming Pipeline
-Efficient streaming with adaptive bitrate and compression.
-
-**Modules:**
-- `frame_processor.py` — Frame capture, resizing, encoding
-- `stream_server.py` — Streaming server (RTMP/RTP/custom)
-- `compression.py` — H.264/H.265 encoding
-
----
-
-### **INSCenter** — Inertial Navigation System
-Fuses IMU + barometric data for precise positioning.
-
-**Algorithm:**
-1. Capture IMU accelerometer + gyroscope data
-2. Fuse with barometric altitude
-3. Estimate XYZ position & velocity
-4. Correct drift using GPS (if available)
-
-**Example:**
-```python
-from INSCenter.ins_filter import EKF_INS
-
-ins = EKF_INS()
-state = ins.update(accel=(0.1, 0.05, 9.8), gyro=(0, 0, 0.02), alt=25.3)
-print(f"Position: {state.position}, Velocity: {state.velocity}")
-```
-
----
-
-### **software/detection** — AI Detection Models
-Computer vision for survivor and hazard detection.
-
-**Modules:**
-- `survivor_detector.py` — Human body detection (YOLOv8 / ResNet)
-- `hazard_detector.py` — Fire/debris/obstacles detection
-- `thermal_processor.py` — Thermal image enhancement & analysis
-
-**Example:**
-```python
-from software.detection.survivor_detector import SurvivorDetector
-
-detector = SurvivorDetector(model_path="models/yolov8_humans.pt")
-results = detector.detect(frame)  # Returns bboxes + confidence
-
-for detection in results:
-    print(f"Human at {detection.bbox}, confidence: {detection.conf}")
-```
-
----
-
-## 🛠️ Development Conventions
-
-### **1. Constants Only in ConstantsCenter**
-❌ **WRONG:**
-```python
-# In CommandsCenter/Commands.py
-MAX_ALT = 120  # Magic number!
-```
-
-✅ **RIGHT:**
-```python
-# In ConstantsCenter/constants.py
-MAX_ALTITUDE_M = 120
-
-# In CommandsCenter/Commands.py
-from ConstantsCenter.constants import MAX_ALTITUDE_M
-```
-
-### **2. Module Independence**
-Each `*Center` is self-contained. Avoid circular imports:
-- ✅ `CommandsCenter` → `ConstantsCenter` (OK)
-- ❌ `CommandsCenter` → `CommunicationCenter` → `CommandsCenter` (BAD)
-
-### **3. Import Paths**
-Never change import paths without team sign-off. Other modules depend on the current structure:
-
-```python
-# Established imports — do NOT change these without approval
-from CommandsCenter.Commands import CommandBuilder
-from CommunicationCenter.communication import DroneLink
-from ConstantsCenter.constants import MAX_ALTITUDE_M
-```
-
-### **4. Logging**
-Use the centralized logger:
-
-```python
-from software.utils.logger import get_logger
-
-logger = get_logger(__name__)
-logger.info("Drone armed successfully")
-logger.warning("Low battery: 15%")
-logger.error("Motor 3 failed!")
-```
-
-### **5. Error Handling**
-Use custom exceptions from `software.utils.error_handler`:
-
-```python
-from software.utils.error_handler import CommunicationError, SafetyViolation
-
-try:
-    link.send_command(cmd)
-except CommunicationError as e:
-    logger.error(f"Failed to send command: {e}")
-    # Implement fallback
-```
-
-### **6. Configuration/Constant Changes**
-Any tuning of constants requires a PR with clear justification:
-
-```
-PR Title: Increase MAX_ALTITUDE from 100m to 120m for extended search ops
-
-Changed in ConstantsCenter/constants.py:
-- OLD: MAX_ALTITUDE_M = 100
-+ NEW: MAX_ALTITUDE_M = 120
-
-Reason: New hardware (more powerful battery) supports higher altitude.
-        Testing complete at test range.
-```
-
----
-
-## 🧪 Testing
-
-All tests belong in `TestCenter/`, mirroring the module structure.
-
-### Test Organization
-
-```
-TestCenter/
-├── test_commands.py           ← Tests for CommandsCenter
-├── test_communication.py       ← Tests for CommunicationCenter
-├── test_streaming.py          ← Tests for GlobalVideoStreamingCenter
-├── test_display.py            ← Tests for DisplayCenter
-├── test_detection.py          ← Tests for software/detection
-└── conftest.py                ← Pytest configuration & fixtures
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest TestCenter/
-
-# Run specific test file
-pytest TestCenter/test_commands.py
-
-# Run with coverage
-pytest TestCenter/ --cov=. --cov-report=html
-
-# Run with verbose output
-pytest TestCenter/ -v
-
-# Run specific test
-pytest TestCenter/test_commands.py::test_takeoff_command
-```
-
-### Writing Tests
-
-**Example test structure:**
-```python
-# TestCenter/test_commands.py
-import pytest
-from CommandsCenter.Commands import CommandBuilder
-from ConstantsCenter.constants import MAX_ALTITUDE_M
-
-class TestCommandBuilder:
-    
-    def test_takeoff_command_valid(self):
-        builder = CommandBuilder()
-        cmd = builder.create_takeoff(altitude=10)
-        assert cmd.type == "TAKEOFF"
-        assert cmd.altitude == 10
-    
-    def test_takeoff_exceeds_max_altitude(self):
-        builder = CommandBuilder()
-        with pytest.raises(ValueError):
-            builder.create_takeoff(altitude=MAX_ALTITUDE_M + 50)
-    
-    def test_land_command(self):
-        builder = CommandBuilder()
-        cmd = builder.create_land()
-        assert cmd.type == "LAND"
-```
-
----
-
-## 👥 Contributing Guidelines
-
-### Before You Start
-1. **Understand the architecture** — Read this README and module docs
-2. **Follow conventions** — Constants go in `ConstantsCenter`, imports are established
-3. **Sync with team** — Don't rename/move existing code without discussion
-
-### Workflow
-
-1. **Create a feature branch:**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Make changes** following conventions above
-
-3. **Write tests** in `TestCenter/` for your changes
-
-4. **Test locally:**
-   ```bash
-   pytest TestCenter/ -v
-   ```
-
-5. **Commit with clear messages:**
-   ```bash
-   git commit -m "Add thermal detection to hazard module
-
-   - Implemented ThermalDetector class
-   - Added unit tests in test_detection.py
-   - Tuned THERMAL_THRESHOLD_C constant
-   - Verified with thermal dataset"
-   ```
-
-6. **Push and open a PR:**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-### PR Checklist
-- [ ] Tests pass (`pytest TestCenter/`)
-- [ ] No changes to import paths without approval
-- [ ] Constants updated in `ConstantsCenter/` (not hardcoded)
-- [ ] Code follows Python style (PEP 8)
-- [ ] PR description explains what & why
-- [ ] No deprecated code imported
-
----
-
-## 🔧 Troubleshooting
-
-### Issue: ImportError when running `python main.py`
-
-**Cause:** Virtual environment not activated or dependencies not installed
-
-**Solution:**
-```bash
-# Activate venv
-source .venv/bin/activate  # macOS/Linux
-.venv\Scripts\activate      # Windows
-
-# Reinstall dependencies
-pip install -r requirements.txt
-```
-
----
-
-### Issue: Serial connection fails (Cannot open port)
-
-**Cause:** Drone not connected or port name incorrect
-
-**Solution:**
-```python
-# In ConstantsCenter/constants.py, update:
-SERIAL_PORT = "/dev/ttyUSB0"  # or COM3 on Windows
-SERIAL_BAUDRATE = 115200
-
-# On Windows, find COM port in Device Manager
-# On Linux/Mac: ls /dev/tty*
-```
-
----
-
-### Issue: Video streaming not working
-
-**Cause:** Network issue or streaming server not started
-
-**Solution:**
-```bash
-# Check if streaming is enabled in constants
-# In DisplayCenter/Display.py or FrontEndCenter/server.py:
-ENABLE_STREAMING = True
-STREAM_PORT = 5000
-
-# Verify network connectivity
-ping 192.168.1.100  # (target streaming IP)
-```
-
----
-
-### Issue: Drone not responding to commands
-
-**Cause:** Communication protocol mismatch or hardware issue
-
-**Solution:**
-1. Check `CommunicationCenter/communication.py` protocol settings
-2. Verify baudrate in `ConstantsCenter/constants.py`
-3. Check drone firmware compatibility
-4. Review logs in `TestCenter/test_communication.py`
-
----
-
-## 📝 License
-
-This project is licensed under the **MIT License** — see LICENSE file for details.
-
----
-
-## 📞 Support & Contact
-
-- **Author:** DarshiL-Sharma
-- **GitHub:** https://github.com/DarshiL-Sharma/J2-Drone
-- **Issues:** [Report a bug](https://github.com/DarshiL-Sharma/J2-Drone/issues)
-
----
-
-## 🎯 Roadmap
-
-- [ ] Multi-drone coordination
-- [ ] Cloud data sync with offline-first fallback
-- [ ] Advanced ML models (object segmentation, trajectory prediction)
-- [ ] Web dashboard expansion (3D terrain mapping)
-- [ ] Hardware abstraction layer (support multiple drone platforms)
+- [ ] Multi-drone coordination in the ground station
+- [ ] Offline-first cloud synchronisation
+- [ ] Hardware abstraction layer for multiple drone platforms
 - [ ] Formal documentation site
 
+### Target specifications (estimates, to be finalised)
+
+| | Mother drone | Child drone |
+|---|---|---|
+| Weight | about 1.8 to 2.0 kg | about 150 to 200 g |
+| Flight time | about 18 to 22 min | about 5 to 7 min per mission |
+| Communication range | Telemetry and cloud relay | about 50 to 80 m (Wi-Fi/telemetry, rubble-dependent) |
+| Estimated total cost | Rs 70,000 to 90,000 for a mother drone with 3 to 4 child units | |
+
+These figures are estimates based on the current bill of materials and will change as the hardware is finalised.
+
 ---
 
-**Happy flying! 🚁**
+## Team
+
+Team AKASHX, Smart India Hackathon 2026.
+
+| Role | Name | Focus |
+|---|---|---|
+| Team Lead | **Darshil Sharma** | Project lead. Control system and navigation system. Software UI/UX. Android application and frontend development. Semi-autonomous features. |
+| Co-Lead | **Ayush Nainawdiya** | Project guide. Testing, autonomous image sensing, YOLO and OpenCV. |
+| Team Member | **Ayushi Kuravle** | Frontend development and research. |
+| Team Member | **Aryan Kumar** | Autonomous feature development and testing in the virtual environment. |
+| Team Member | **Arpit Charpe** | Software UI/UX development. Training of the 25,000-image dataset. |
+| Team Member | **Dhruv Goud** | Hardware testing and control, research, and content creation. |
+
+---
+
+## Contributing
+
+Contributions, bug reports and ideas are welcome. Please open an issue first to discuss larger changes, and make sure that tests pass and constants are kept in `ConstantsCenter` before opening a pull request.
+
+---
+
+## References
+
+- Ultralytics YOLOv8: https://docs.ultralytics.com/models/yolov8
+- Raspberry Pi 5: https://www.raspberrypi.com/products/raspberry-pi-5/
+- Hailo-8 AI accelerator: https://hailo.ai/products/ai-accelerators/hailo-8-ai-accelerator/
+- NDMA: https://ndma.gov.in/
+- NDRF: https://ndrf.gov.in/
+- DGCA RPAS guidelines: https://www.dgca.gov.in
+- DigitalSky: https://digitalsky.dgca.gov.in
+- PDSR: UAV swarm deployment for post-disaster search and rescue: https://arxiv.org/pdf/2410.22982
+- Bio-inspired swarm UAV framework for SAR, Scientific Reports: https://www.nature.com/articles/s41598-025-33223-z
+
+---
+
+## License
+
+Released under the MIT License. See the `LICENSE` file for details.
+
+<div align="center">
+
+**Team AKASHX** | Smart India Hackathon 2026
+
+Maintained by [Darshil Sharma](https://github.com/DarshiL-Sharma)
+
+</div>
