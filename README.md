@@ -98,20 +98,17 @@ This section lists what exists and works today. Planned work is kept separate un
 <table>
   <tr>
     <td align="center" width="62%">
-      <img src="<img width="339" height="232" alt="image" src="https://github.com/user-attachments/assets/aff88983-93c8-46bf-86d6-a4cfd4f3a0c1" />
-" alt="Ground Control Software" width="100%">
+      <img src="https://github.com/user-attachments/assets/aff88983-93c8-46bf-86d6-a4cfd4f3a0c1" alt="Ground Control Software" width="100%">
       <br><b>Ground Control Software</b>
       <br>Live video, victim and fire captures, map, controls and safety panel
     </td>
     <td align="center" width="38%">
-      <img src="<img width="133" height="243" alt="image" src="https://github.com/user-attachments/assets/1fae16fd-3638-483e-b243-7b9dca20601d" />
-" alt="Mobile app" width="60%">
+      <img src="https://github.com/user-attachments/assets/1fae16fd-3638-483e-b243-7b9dca20601d" alt="Mobile app" width="60%">
       <br><b>Mobile App</b>
       <br>Detection status, telemetry and SOS
     </td>
   </tr>
 </table>
-
 ---
 
 ## Architecture
